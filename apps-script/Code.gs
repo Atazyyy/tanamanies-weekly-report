@@ -360,6 +360,14 @@ function berlangsung_(t0) {
 // TELEGRAM (OPSIONAL)
 // ============================================================
 
+/** Penerima laporan: Script Properties EMAIL_PENERIMA bila diisi,
+ *  selain itu akun Google pemilik spreadsheet ini. */
+function penerimaEmail_() {
+  const props = PropertiesService.getScriptProperties();
+  const kustom = props.getProperty('EMAIL_PENERIMA');
+  return kustom || Session.getEffectiveUser().getEmail();
+}
+
 function telegramAktif_() {
   const props = PropertiesService.getScriptProperties();
   return Boolean(props.getProperty('TELEGRAM_TOKEN') && props.getProperty('TELEGRAM_CHAT_ID'));

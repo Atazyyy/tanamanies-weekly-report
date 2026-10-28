@@ -27,9 +27,9 @@ Apps Script: bersihkan & validasi (nama outlet, harga teks, VOID/REFUND)
 | Kemampuan | Wujudnya |
 |---|---|
 | **Google Apps Script + Spreadsheet** | Fungsi JavaScript membaca, membersihkan, dan menulis sheet — trigger terjadwal otomatis |
-| **JavaScript** | ~300 baris Apps Script (V8): validasi header, parsing tanggal 2 format, harga `"Rp18.000"` → angka |
+| **JavaScript** | ~460 baris Apps Script (V8): validasi header, parsing tanggal 2 format, harga `"Rp18.000"` → angka |
 | **Otomasi laporan rutin** | Satu kali pasang trigger — laporan jalan sendiri setiap Senin 07.00 WIB tanpa ada yang membuka file |
-| **Integritas angka** | VOID/REFUND dikecualikan dari omzet; pembanding minggu lalu otomatis (▲ +20% / ▼ -20%) |
+| **Integritas angka** | VOID/REFUND dikecualikan dari omzet; pembanding minggu lalu otomatis (`^ +20%` / `v -20%`) |
 | **Keandalan** | Data bermasalah → laporan tetap terkirim dengan tanda ⚠ + peringatan; error fatal → email "GAGAL" + log; tidak pernah gagal diam-diam |
 | **Keamanan kredensial** | Token Telegram disimpan di **Script Properties** (bukan di kode), tidak ikut ke-Git |
 
@@ -65,6 +65,8 @@ Apps Script: bersihkan & validasi (nama outlet, harga teks, VOID/REFUND)
 - **Pembersihan terpusat & terukur** — setiap run mencatat berapa sel diperbaiki, baris dibuang, dan VOID/REFUND dikecualikan, sama seperti filosofi proyek analytics pendampingnya.
 - **Kredensial di Script Properties**, bukan hardcode — dan karena tidak di-commit, repo aman publik.
 - **Pembanding minggu lalu dihitung otomatis** dari periode yang sama panjang, jadi angka pertumbuhan tidak bisa "dibaca salah".
+- **Definisi metrik eksplisit.** `Omzet` = qty x harga satuan setelah VOID/REFUND dikeluarkan. `Transaksi` = jumlah baris ekspor yang valid per outlet (satu baris = satu item terjual); jika sumber POS punya ID transaksi, ganti dengan hitungan ID unik — komentarnya ada di kode.
+- **Code.gs dijaga ASCII murni.** Emoji/em dash dihapus dari kode karena clipboard Windows bisa merusak encoding saat menempel ke editor Apps Script (gejala: `ÔÇö` di sheet). Label tetap jelas tanpa karakter non-ASCII.
 
 ## Menguji logika tanpa Google
 
@@ -72,7 +74,7 @@ Logika murni (parsing harga/tanggal, pemetaan outlet, agregasi, pembanding) diuj
 
 ```bash
 node uji-logika-lokal.js apps-script/Code.gs
-# → SEMUA UJI LOGIKA LOLOS ✔
+# → SEMUA UJI LOGIKA LOLOS
 ```
 
 ---

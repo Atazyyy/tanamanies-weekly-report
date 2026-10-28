@@ -33,6 +33,7 @@ Cara mendemokan project ini saat interview, khususnya untuk posisi yang meminta
 | "JavaScript" | V8 JavaScript di Apps Script + harness test Node lokal |
 | "Mampu mengevaluasi & memperbaiki hasil AI" | Ceritakan: fungsi `angka_()` sengaja menangani 3 format harga + edge case, lalu diuji dengan `uji-logika-lokal.js` — AI membantu menulis, kamu yang menentukan aturan & menguji |
 | "Mandiri, minim supervisi, terandalkan" | Sistem ini didesain untuk berjalan tanpa penjagaan: fail-loud + log + peringatan otomatis |
+| "Menguasai SQL, arsitektur data, MCP" | Tunjukkan project pendamping [tanamanies-cafe-analytics](https://github.com/Atazyyy/tanamanies-cafe-analytics) (live dashboard) — dua-duanya satu cerita: pipeline berat di Python/DuckDB, laporan harian di Sheet |
 
 ## 4. Pertanyaan yang mungkin muncul
 

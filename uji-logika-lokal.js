@@ -51,9 +51,9 @@ console.assert(tgl(new Date(2026, 9, 26)).getTime() === new Date(2026, 9, 26).ge
 console.assert(tgl('besok') === null, 'tanggal sampah -> null');
 
 // ---- uji selisih_ ----
-console.assert(selisih_(1200000, 1000000) === '▲ +20.0%', 'selisih naik');
-console.assert(selisih_(800000, 1000000) === '▼ -20.0%', 'selisih turun');
-console.assert(selisih_(500000, 0) === '—', 'selisih pembanding nol');
+console.assert(selisih_(1200000, 1000000) === '^ +20.0%', 'selisih naik');
+console.assert(selisih_(800000, 1000000) === 'v -20.0%', 'selisih turun');
+console.assert(selisih_(500000, 0) === '-', 'selisih pembanding nol');
 
 // ---- uji rentangMingguLalu_ ----
 const { awal, akhir } = rentangMingguLalu_();
@@ -80,6 +80,8 @@ console.assert(hasil.voidRefund === 1, '1 VOID dikecualikan');
 console.assert(hasil.selDiperbaiki === 4, '4 sel diperbaiki (3 outlet + 1 harga teks, kedua periode), dapat: ' + hasil.selDiperbaiki);
 console.assert(hasil.periodeIni.perOutlet['Tanamanies Dago'].omzet === 36000 + 18000, 'omzet minggu lalu = 54000 (36rb + 18rb)');
 console.assert(hasil.mingguLalu.perOutlet['Tanamanies Dago'].omzet === 90000, 'omzet pembanding = 90000');
+console.assert(hasil.periodeIni.perOutlet['Tanamanies Dago'].trx === 2, 'trx periode = 2 baris, dapat: ' + hasil.periodeIni.perOutlet['Tanamanies Dago'].trx);
+console.assert(hasil.mingguLalu.perOutlet['Tanamanies Dago'].trx === 1, 'trx pembanding = 1 baris');
 console.assert(hasil.peringatan.length === 1, 'peringatan baris minimum muncul');
 
-console.log('SEMUA UJI LOGIKA LOLOS ✔');
+console.log('SEMUA UJI LOGIKA LOLOS');

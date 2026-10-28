@@ -1,5 +1,5 @@
 /**
- * Tanamanies Weekly Report — otomasi laporan back-office mingguan dengan Google Apps Script.
+ * Tanamanies Weekly Report - otomasi laporan back-office mingguan dengan Google Apps Script.
  *
  * Brand & data fiktif untuk portofolio (Tanamanies Cafe, Bandung).
  *
@@ -9,7 +9,7 @@
  *    lalu menulis ringkasan ke sheet "Ringkasan".
  *  - Mengirim laporan ke email pemilik sheet (default) dan ke Telegram bot (opsional,
  *    via Script Properties TELEGRAM_TOKEN & TELEGRAM_CHAT_ID).
- *  - Semua perbaikan & error dicatat ke sheet "Log" — laporan tetap terkirim dengan
+ *  - Semua perbaikan & error dicatat ke sheet "Log" - laporan tetap terkirim dengan
  *    tanda peringatan bila data bermasalah, tidak pernah gagal diam-diam.
  *
  * Cara pakai (ringkas): lihat README.md. Fungsi utama: laporanMingguan.
@@ -66,7 +66,7 @@ function laporanMingguan() {
       kirimTelegram_(susunTeksTelegram_(hasil, awal, akhir));
     }
 
-    catatLog_('INFO', 'Laporan ' + formatRentang_(awal, akhir) + ' terkirim — ' +
+    catatLog_('INFO', 'Laporan ' + formatRentang_(awal, akhir) + ' terkirim - ' +
       hasil.jumlahBarisValid + ' baris valid, ' + hasil.barisDibuang + ' dibuang, ' +
       hasil.selDiperbaiki + ' sel diperbaiki (' + berlangsung_(t0) + ').');
   } catch (err) {
@@ -156,13 +156,14 @@ function bersihkanDanAgregasi_(mentah, awal, akhir) {
 
     if (!target.perOutlet[outlet]) target.perOutlet[outlet] = { omzet: 0, trx: 0 };
     target.perOutlet[outlet].omzet += omzet;
+    target.perOutlet[outlet].trx += 1;
     if (!target.perProduk[produk]) target.perProduk[produk] = 0;
     target.perProduk[produk] += omzet;
   });
 
   if (jumlahBarisValid < AMBANG_BARIS_MINIMUM) {
     peringatan.push('Baris valid hanya ' + jumlahBarisValid + ' (ambang ' + AMBANG_BARIS_MINIMUM +
-      ') — kemungkinan data belum lengkap diimpor.');
+      ') - kemungkinan data belum lengkap diimpor.');
   }
 
   const ringkasProduk = function (p) {
@@ -255,12 +256,14 @@ function tulisRingkasan_(hasil, awal, akhir) {
   const zona = Session.getScriptTimeZone();
   const label = Utilities.formatDate(awal, zona, 'dd MMM') + ' - ' + Utilities.formatDate(akhir, zona, 'dd MMM yyyy');
 
-  sheet.getRange('A1').setValue('RINGKASAN MINGGUAN — TANAMANIES CAFE').setFontWeight('bold').setFontSize(14);
-  sheet.getRange('A2').setValue('Periode: ' + label + '  ·  dibuat otomatis ' +
+  sheet.getRange('A1').setValue('RINGKASAN MINGGUAN - TANAMANIES CAFE').setFontWeight('bold').setFontSize(14);
+  sheet.getRange('A2').setValue('Periode: ' + label + '  |  dibuat otomatis ' +
     Utilities.formatDate(new Date(), zona, 'dd MMM yyyy HH:mm')).setFontColor('#666666');
 
   sheet.getRange('A4').setValue('Omzet per outlet').setFontWeight('bold');
-  const header = ['Outlet', 'Omzet', 'Trx', 'vs minggu lalu'];
+  // Satu baris ekspor = satu transaksi item; jika sumber POS punya ID transaksi,
+  // ganti hasil.perOutlet[o].trx dengan hitungan ID unik.
+  const header = ['Outlet', 'Omzet', 'Transaksi', 'vs minggu lalu'];
   const baris = [header];
   const daftarOutlet = Object.keys(hasil.periodeIni.perOutlet).sort();
   daftarOutlet.forEach(function (o) {
@@ -284,17 +287,17 @@ function tulisRingkasan_(hasil, awal, akhir) {
   sheet.getRange(barisCatatan, 1).setValue('Catatan pipeline').setFontWeight('bold');
   barisCatatan++;
   sheet.getRange(barisCatatan, 1).setValue('Baris valid: ' + hasil.jumlahBarisValid +
-    ' · dibuang: ' + hasil.barisDibuang + ' · VOID/REFUND dikecualikan: ' + hasil.voidRefund);
+    ' | dibuang: ' + hasil.barisDibuang + ' | VOID/REFUND dikecualikan: ' + hasil.voidRefund);
   barisCatatan++;
   hasil.peringatan.forEach(function (p) {
-    sheet.getRange(barisCatatan, 1).setValue('⚠ ' + p).setFontColor('#b45309');
+    sheet.getRange(barisCatatan, 1).setValue('[!] ' + p).setFontColor('#b45309');
     barisCatatan++;
   });
   sheet.setColumnWidth(1, 220);
   sheet.setColumnWidth(2, 160);
 }
 
-/** Email HTML sederhana — dibaca di ponsel manajemen. */
+/** Email HTML sederhana - dibaca di ponsel manajemen. */
 function susunEmail_(hasil, awal, akhir) {
   const baris = Object.keys(hasil.periodeIni.perOutlet).sort().map(function (o) {
     const sekarang = hasil.periodeIni.perOutlet[o].omzet;
@@ -303,21 +306,21 @@ function susunEmail_(hasil, awal, akhir) {
       rupiah_(sekarang) + '</td><td style="padding:6px 12px;text-align:right">' + selisih_(sekarang, dulu) + '</td></tr>';
   }).join('');
   const top = hasil.topProduk.map(function (p, i) {
-    return '<li>' + p.produk + ' — ' + rupiah_(p.omzet) + '</li>';
+    return '<li>' + p.produk + ' - ' + rupiah_(p.omzet) + '</li>';
   }).join('');
   const warna = hasil.peringatan.length ? '#b45309' : '#2e7d32';
   const status = hasil.peringatan.length
-    ? '⚠ Perlu perhatian: ' + hasil.peringatan.join('; ')
-    : '✔ Data lengkap — ' + hasil.jumlahBarisValid + ' baris valid diproses.';
+    ? '[!] Perlu perhatian: ' + hasil.peringatan.join('; ')
+    : '[OK] Data lengkap - ' + hasil.jumlahBarisValid + ' baris valid diproses.';
   return '<div style="font-family:Arial,sans-serif;max-width:560px">' +
-    '<h2 style="margin-bottom:4px">🌱 Tanamanies Cafe</h2>' +
+    '<h2 style="margin-bottom:4px">Tanamanies Cafe</h2>' +
     '<p style="color:#666;margin-top:0">Laporan mingguan ' + formatRentang_(awal, akhir) + '</p>' +
     '<table style="border-collapse:collapse"><tr style="background:#e8f0e8;font-weight:bold">' +
     '<td style="padding:6px 12px">Outlet</td><td style="padding:6px 12px;text-align:right">Omzet</td>' +
     '<td style="padding:6px 12px;text-align:right">vs minggu lalu</td></tr>' + baris + '</table>' +
     '<h3 style="margin-bottom:4px">Top 5 produk</h3><ol>' + top + '</ol>' +
     '<p style="color:' + warna + '">' + status + '</p>' +
-    '<p style="color:#999;font-size:12px">Laporan otomatis Google Apps Script · VOID/REFUND dikecualikan · detail: sheet "' + SHEET_RINGKASAN + '"</p></div>';
+    '<p style="color:#999;font-size:12px">Laporan otomatis Google Apps Script | VOID/REFUND dikecualikan | detail: sheet "' + SHEET_RINGKASAN + '"</p></div>';
 }
 
 /** Teks ringkas untuk Telegram (parse_mode HTML). */
@@ -325,10 +328,10 @@ function susunTeksTelegram_(hasil, awal, akhir) {
   const baris = Object.keys(hasil.periodeIni.perOutlet).sort().map(function (o) {
     const sekarang = hasil.periodeIni.perOutlet[o].omzet;
     const dulu = (hasil.mingguLalu.perOutlet[o] || {}).omzet || 0;
-    return '• ' + o + ': <b>' + rupiah_(sekarang) + '</b> (' + selisih_(sekarang, dulu) + ')';
+    return '- ' + o + ': <b>' + rupiah_(sekarang) + '</b> (' + selisih_(sekarang, dulu) + ')';
   }).join('\n');
-  const warna = hasil.peringatan.length ? '⚠' : '✅';
-  return '<b>🌱 Tanamanies — Laporan ' + formatRentang_(awal, akhir) + '</b>\n' + baris +
+  const warna = hasil.peringatan.length ? '[!]' : '[OK]';
+  return '<b>Tanamanies - Laporan ' + formatRentang_(awal, akhir) + '</b>\n' + baris +
     '\n<b>Top:</b> ' + (hasil.topProduk[0] ? hasil.topProduk[0].produk : '-') +
     '\n' + warna + ' ' + (hasil.peringatan.length ? hasil.peringatan.join('; ') :
       hasil.jumlahBarisValid + ' baris valid diproses.');
@@ -340,14 +343,14 @@ function rupiah_(n) {
 
 function formatRentang_(awal, akhir) {
   const zona = Session.getScriptTimeZone();
-  return Utilities.formatDate(awal, zona, 'dd MMM') + '–' + Utilities.formatDate(akhir, zona, 'dd MMM');
+  return Utilities.formatDate(awal, zona, 'dd MMM') + '-' + Utilities.formatDate(akhir, zona, 'dd MMM');
 }
 
 /** 'x' vs pembanding 0 -> teks persen berwarna Emoji. */
 function selisih_(sekarang, dulu) {
-  if (!dulu) return '—';
+  if (!dulu) return '-';
   const pct = (sekarang / dulu - 1) * 100;
-  const tanda = pct >= 0 ? '▲ +' : '▼ ';
+  const tanda = pct >= 0 ? '^ +' : 'v ';
   return tanda + pct.toFixed(1) + '%';
 }
 

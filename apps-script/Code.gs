@@ -406,6 +406,23 @@ function pasangTrigger() {
   catatLog_('INFO', 'Trigger mingguan Senin 07.00 terpasang.');
 }
 
+/**
+ * Hentikan otomasi: hapus semua trigger laporan mingguan.
+ * Laporan berhenti terkirim otomatis, tapi semua data & sheet tetap utuh.
+ * Untuk menyalakan lagi, jalankan pasangTrigger.
+ */
+function hentikanTrigger() {
+  var jumlah = 0;
+  ScriptApp.getProjectTriggers().forEach(function (t) {
+    if (t.getHandlerFunction() === 'laporanMingguan') {
+      ScriptApp.deleteTrigger(t);
+      jumlah++;
+    }
+  });
+  catatLog_('INFO', 'Trigger mingguan dihapus: ' + jumlah + ' trigger. Otomasi berhenti; jalankan pasangTrigger untuk menyalakan lagi.');
+  return jumlah;
+}
+
 /** Tulis baris ke sheet Log (buat bila belum ada). */
 function catatLog_(level, pesan) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();

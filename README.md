@@ -2,6 +2,8 @@
 
 Laporan penjualan mingguan kedai kopi yang **terkirim otomatis ke email & Telegram setiap Senin pagi** — dibangun penuh di dalam Google Sheet dengan Apps Script (JavaScript), tanpa server dan tanpa biaya.
 
+**Untuk siapa & untuk apa:** pemilik/manager multi-outlet F&B yang data hariannya sudah masuk Google Sheet tapi laporan mingguannya masih diolah manual. Sistem ini menggantikan pekerjaan itu: menghitung omzet per outlet, membandingkan dengan minggu lalu, menyusun top produk, lalu mengirimkannya sebelum outlet buka — tanpa ada yang perlu membuka file.
+
 > Tanamanies Cafe adalah **brand fiktif** kedai kopi di Bandung. Seluruh data & alamat email pada project ini adalah simulasi untuk portofolio — bukan data bisnis nyata.
 >
 > Project pendamping: [Tanamanies Cafe Analytics](https://github.com/Atazyyy/tanamanies-cafe-analytics) (pipeline data + dashboard + MCP).
@@ -49,6 +51,31 @@ Apps Script: bersihkan & validasi (nama outlet, harga teks, VOID/REFUND)
 3. Di Apps Script: **Project Settings → Script Properties** → tambah `TELEGRAM_TOKEN` dan `TELEGRAM_CHAT_ID`.
 4. Jalankan `laporanMingguan` lagi — ringkasan muncul di Telegram-mu.
 
+## Pemakaian sehari-hari
+
+| Siapa | Yang dilakukan |
+|---|---|
+| Kasir / admin outlet | Mengisi sheet **Data Penjualan** setiap hari (satu baris = satu item terjual) |
+| Sistem (otomatis) | Setiap Senin 07.00: bersihkan data, tulis **Ringkasan**, kirim email + Telegram, catat **Log** |
+| Manager | Membaca email Ringkasan; kalau ada tanda peringatan, buka sheet **Log** untuk detail |
+| Kamu (pemilik sistem) | Tidak ada tugas rutin. Cek **Log** sesekali; kalau laporan tidak masuk, lihat halaman *Executions* |
+
+## Cara menghentikan (dan menyalakan lagi)
+
+Semua penghentian aman: data dan sheet tidak ikut terhapus.
+
+| Yang ingin dihentikan | Caranya |
+|---|---|
+| **Laporan otomatis Senin 07.00** | Di editor Apps Script pilih fungsi **`hentikanTrigger`** → **Run**. Trigger dihapus, sheet & data tetap utuh. |
+| **Satu eksekusi yang sedang berjalan** | Klik tombol **Stop** di panel *Execution log*. |
+| **Kiriman ke Telegram** | **Project Settings → Script Properties** → hapus `TELEGRAM_TOKEN` dan `TELEGRAM_CHAT_ID`. Laporan tetap jalan, hanya tanpa Telegram. |
+| **Kiriman ke email tertentu** | Hapus properti `EMAIL_PENERIMA`. Laporan kembali dikirim ke email pemilik spreadsheet. |
+| **Seluruh project** | **Extensions → Apps Script → ⋮ (menu project) → Delete project**. Sheet boleh dibiarkan; cukup jangan jalankan fungsi apa pun lagi. |
+
+**Menyalakan lagi:** jalankan **`pasangTrigger`**. Fungsi ini idempoten — trigger lama dihapus lebih dulu, jadi tidak akan ada laporan dobel.
+
+**Menguji tanpa menunggu Senin:** jalankan **`laporanMingguan`** kapan saja; hasilnya sama dengan yang akan dikirim trigger.
+
 ## Struktur repo
 
 ```
@@ -80,4 +107,4 @@ node uji-logika-lokal.js apps-script/Code.gs
 ---
 
 Dibuat oleh [Agni Miftah Fauzi](https://github.com/Atazyyy) — AI Specialist / AI Systems.
-Dikembangkan bersama AI coding assistant (Claude Code). Portfolio: [atapdigital.id](https://atapdigital.id)
+Dikembangkan bersama AI coding assistant (ZCode) — arsitektur, keputusan desain, pengujian, dan verifikasi hasil dilakukan sendiri. Portfolio: [atapdigital.id](https://atapdigital.id)

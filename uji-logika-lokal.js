@@ -2,10 +2,15 @@
 // Menstub API Apps Script yang dipakai saat module load (hanya yang dievaluasi di top-level: tidak ada,
 // tapi fungsi pemanggil dipanggil manual di bawah).
 
-const calls = { log: [] };
+const calls = { log: [], triggerDihapus: [] };
+
+const sheetPalsu = () => ({
+  getRange: () => ({ setValues: () => ({ setFontWeight: () => null }), setFontWeight: () => null }),
+  appendRow: (baris) => calls.log.push(baris),
+});
 
 global.SpreadsheetApp = {
-  getActiveSpreadsheet: () => ({ getSheetByName: () => null, insertSheet: () => ({}) }),
+  getActiveSpreadsheet: () => ({ getSheetByName: () => null, insertSheet: () => sheetPalsu() }),
 };
 global.Session = { getScriptTimeZone: () => 'Asia/Jakarta' };
 global.Utilities = { formatDate: (d) => d.toISOString().slice(0, 10) };
@@ -13,9 +18,12 @@ global.MailApp = { sendEmail: (o) => calls.mail = o };
 global.PropertiesService = { getScriptProperties: () => ({ getProperty: () => null }) };
 global.UrlFetchApp = { fetch: () => ({ getResponseCode: () => 200, getContentText: () => '' }) };
 global.ScriptApp = {
-  getProjectTriggers: () => [],
+  getProjectTriggers: () => [
+    { getHandlerFunction: () => 'laporanMingguan' },
+    { getHandlerFunction: () => 'fungsiLain' },
+  ],
   newTrigger: () => ({ timeBased: () => ({ onWeekDay: () => ({ atHour: () => ({ create: () => null }) }) }) }),
-  deleteTrigger: () => null,
+  deleteTrigger: (t) => calls.triggerDihapus.push(t),
   WeekDay: { MONDAY: 1 },
 };
 
@@ -83,5 +91,11 @@ console.assert(hasil.mingguLalu.perOutlet['Tanamanies Dago'].omzet === 90000, 'o
 console.assert(hasil.periodeIni.perOutlet['Tanamanies Dago'].trx === 2, 'trx periode = 2 baris, dapat: ' + hasil.periodeIni.perOutlet['Tanamanies Dago'].trx);
 console.assert(hasil.mingguLalu.perOutlet['Tanamanies Dago'].trx === 1, 'trx pembanding = 1 baris');
 console.assert(hasil.peringatan.length === 1, 'peringatan baris minimum muncul');
+
+// ---- uji hentikanTrigger ----
+const dihapus = hentikanTrigger();
+console.assert(dihapus === 1, 'hentikanTrigger hanya menghapus trigger laporanMingguan, dapat: ' + dihapus);
+console.assert(calls.triggerDihapus.length === 1, 'satu trigger benar-benar dihapus');
+console.assert(calls.log.length === 1, 'hentikanTrigger mencatat ke sheet Log');
 
 console.log('SEMUA UJI LOGIKA LOLOS');

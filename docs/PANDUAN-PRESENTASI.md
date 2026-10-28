@@ -52,6 +52,13 @@ laporan tetap terkirim dengan tanda ⚠ — manajemen tidak pernah mengira "tida
 Telegram API-nya paling sederhana (satu HTTP POST), dan saya tunjukkan polanya bisa diganti —
 Slack punya webhook serupa. Yang penting dari demo ini adalah pola: sistem → notifikasi → log.
 
+**"Kalau mau dimatikan, bagaimana?"**
+Ada satu fungsi khusus: `hentikanTrigger()` — jalankan, dan jadwal Senin 07.00 langsung hilang
+sementara semua sheet dan data tetap utuh. Menyalakan lagi cukup `pasangTrigger()`; fungsi ini
+menghapus trigger lama dulu, jadi tidak mungkin ada laporan dobel. Untuk satu kali eksekusi yang
+sedang jalan, ada tombol Stop di panel Execution log. Semua ini ada di README bagian
+"Cara menghentikan (dan menyalakan lagi)".
+
 **"Dari mana datanya?"**
 Generator `isiDataContoh()` — 2 minggu data simulasi dengan kotoran yang dikontrol. Brand fiktif,
 jadi aman dipublikasikan dan didemokan tanpa menyentuh data perusahaan mana pun.
